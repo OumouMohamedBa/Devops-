@@ -23,7 +23,7 @@
     --name backend \
     --network app-network \
     -p 5234:8000 \
-    -e DATABASE_URL=postgresql://admin:admin@database:5432/postgres \
+    -e DATABASE_URL=postgresql://postgres:admin@database:5432/boavizta \
     rougha/backend_grp2:{{ backend_version }}
 
 - name: Wait for backend
@@ -32,7 +32,7 @@
 
 - name: Healthcheck backend
   uri:
-    url: http://{{ ansible_host }}:5234/health
+    url: http://{{ ansible_host }}:5234/docs
     status_code: 200
   register: backend_health
   ignore_errors: yes
