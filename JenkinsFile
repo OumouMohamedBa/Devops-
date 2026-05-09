@@ -3,14 +3,16 @@ pipeline {
 
     environment {
         ANSIBLE_HOST_KEY_CHECKING = 'False'
-        GIT_REPO = 'https://github.com/OumouMohamedBa/Devops-.git/'
+        ANSIBLE_PRIVATE_KEY_FILE = '/var/lib/jenkins/.ssh/id_ed25519_jenkins'
+        GIT_REPO = 'https://github.com/OumouMohamedBa/Devops-.git'
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: "${GIT_REPO}"
+                git branch: 'main',
+                url: "${GIT_REPO}"
             }
         }
 
@@ -26,7 +28,8 @@ pipeline {
         stage('Test Connectivity') {
             steps {
                 sh '''
-                ansible all -i inventory.ini -m ping
+                ansible all -i inventory.ini -m ping \
+                --private-key=$ANSIBLE_PRIVATE_KEY_FILE
                 '''
             }
         }
@@ -34,7 +37,9 @@ pipeline {
         stage('Deploy Database') {
             steps {
                 sh '''
-                ansible-playbook -i inventory.ini deploy.yml --tags database
+                ansible-playbook -i inventory.ini deploy.yml \
+                --tags database \
+                --private-key=$ANSIBLE_PRIVATE_KEY_FILE
                 '''
             }
         }
@@ -42,7 +47,9 @@ pipeline {
         stage('Deploy Backend') {
             steps {
                 sh '''
-                ansible-playbook -i inventory.ini deploy.yml --tags backend
+                ansible-playbook -i inventory.ini deploy.yml \
+                --tags backend \
+                --private-key=$ANSIBLE_PRIVATE_KEY_FILE
                 '''
             }
         }
@@ -50,24 +57,26 @@ pipeline {
         stage('Deploy Frontend') {
             steps {
                 sh '''
-                ansible-playbook -i inventory.ini deploy.yml --tags frontend
+                ansible-playbook -i inventory.ini deploy.yml \
+                --tags frontend \
+                --private-key=$ANSIBLE_PRIVATE_KEY_FILE
                 '''
             }
         }
-
     }
 
     post {
 
         success {
-            echo "✅ Deployment SUCCESS"
+            echo '✅ Deployment SUCCESS'
         }
 
         failure {
-            echo "❌ Deployment FAILED - Starting Rollback"
+            echo '❌ Deployment FAILED - Starting Rollback'
 
             sh '''
-            ansible-playbook -i inventory.ini rollback.yml
+            ansible-playbook -i inventory.ini rollback.yml \
+            --private-key=$ANSIBLE_PRIVATE_KEY_FILE
             '''
         }
     }
