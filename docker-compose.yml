@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: rougha/postgres_grp2:1.0
+    container_name: postgres_db
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: boavizta
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: always
+
+
+  backend:
+    image: rougha/backend_grp2:1.0
+    container_name: backend_app
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/boavizta
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+
+    ports:
+      - "8001:8000"
+
+    restart: always
+
+
+  frontend:
+    image: rougha/frontend_grp2:1.0
+    container_name: frontend_app
+
+    depends_on:
+      - backend
+
+    ports:
+      - "4201:80"
+
+    restart: always
+
+
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    restart: always
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: always
+
+
+volumes:
+  pg_data:

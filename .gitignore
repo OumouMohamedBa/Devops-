@@ -1,0 +1,16 @@
+# Environnements virtuels
+
+
+# Node modules
+node_modules/
+
+# Docker
+
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Fichiers de configuration sensibles (optionnel, car ils sont déjà dans les sous-dossiers)
+Frontend/node_modules/
+Frontend/dist/
