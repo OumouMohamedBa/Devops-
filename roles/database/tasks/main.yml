@@ -9,10 +9,14 @@
     docker tag rougha/postgres_grp2:latest rougha/postgres_grp2:backup || true
 
 - name: Stop database
-  shell: docker stop database || true
+  shell: |
+    docker stop database || true
+    docker stop postgres_db || true
 
 - name: Remove database
-  shell: docker rm database || true
+  shell: |
+    docker rm database || true
+    docker rm postgres_db || true
 
 - name: Create Docker network
   shell: docker network create app-network || true
