@@ -39,18 +39,23 @@
 
 - name: Wait for backend
   pause:
-    seconds: 60
+    seconds: 10
 
 - name: Healthcheck backend
   uri:
-    url: http://{{ ansible_host }}:5234/docs
+    url: http://{{ ansible_host }}:5234/
     status_code: 200
   register: backend_health
   ignore_errors: yes
 
 - name: Rollback if backend failed
   shell: |
-    docker stop backend
-    docker rm backend
-    docker run -d --name backend -p 5234:8000 rougha/backend_grp2:backup
+    docker stop backend || true
+    docker rm backend || true
+    docker run -d \
+    --name backend \
+    --network app-network \
+    -p 5234:8000 \
+    -e DATABASE_URL=postgresql://postgres:admin@database:5432/boavizta \
+    rougha/backend_grp2:backup
   when: backend_health.failed
