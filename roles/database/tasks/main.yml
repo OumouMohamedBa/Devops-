@@ -28,6 +28,15 @@
       docker rm $CONTAINER_ID || true
     fi
 
+- name: Kill any process using port 5432
+  shell: |
+    # Arrêter le service PostgreSQL natif s'il existe
+    systemctl stop postgresql || true
+    # Tuer tout processus sur le port 5432
+    fuser -k 5432/tcp || true
+    lsof -ti:5432 | xargs kill -9 || true
+  ignore_errors: yes
+
 - name: Create Docker network
   shell: docker network create app-network || true
 
