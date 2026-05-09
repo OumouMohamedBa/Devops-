@@ -28,7 +28,7 @@
 
 - name: Wait for backend
   pause:
-    seconds: 10
+    seconds: 60
 
 - name: Healthcheck backend
   uri:
