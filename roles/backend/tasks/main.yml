@@ -17,6 +17,17 @@
 - name: Create Docker network
   shell: docker network create app-network || true
 
+- name: Wait for database to be ready
+  shell: |
+    until docker exec database pg_isready -U postgres; do
+      echo "Waiting for database..."
+      sleep 2
+    done
+  register: db_ready
+  retries: 15
+  delay: 2
+  until: db_ready.rc == 0
+
 - name: Start new backend container
   shell: |
     docker run -d \
