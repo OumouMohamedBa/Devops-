@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+
+    environment {
+        ANSIBLE_HOST_KEY_CHECKING = 'False'
+        GIT_REPO = 'https://github.com/OumouMohamedBa/Devops-.git/'
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: "${GIT_REPO}"
+            }
+        }
+
+        stage('Verify Ansible') {
+            steps {
+                sh '''
+                ansible --version
+                ansible-inventory -i inventory.ini --list
+                '''
+            }
+        }
+
+        stage('Test Connectivity') {
+            steps {
+                sh '''
+                ansible all -i inventory.ini -m ping
+                '''
+            }
+        }
+
+        stage('Deploy Database') {
+            steps {
+                sh '''
+                ansible-playbook -i inventory.ini deploy.yml --tags database
+                '''
+            }
+        }
+
+        stage('Deploy Backend') {
+            steps {
+                sh '''
+                ansible-playbook -i inventory.ini deploy.yml --tags backend
+                '''
+            }
+        }
+
+        stage('Deploy Frontend') {
+            steps {
+                sh '''
+                ansible-playbook -i inventory.ini deploy.yml --tags frontend
+                '''
+            }
+        }
+
+    }
+
+    post {
+
+        success {
+            echo "✅ Deployment SUCCESS"
+        }
+
+        failure {
+            echo "❌ Deployment FAILED - Starting Rollback"
+
+            sh '''
+            ansible-playbook -i inventory.ini rollback.yml
+            '''
+        }
+    }
+}
