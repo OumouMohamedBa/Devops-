@@ -1,0 +1,27 @@
+---
+- name: Deploy Database
+  hosts: database
+  become: yes
+  vars_files:
+    - versions.yml
+
+  roles:
+    - database
+
+- name: Deploy Backend
+  hosts: backend
+  become: yes
+  vars_files:
+    - versions.yml
+
+  roles:
+    - backend
+
+- name: Deploy Frontend
+  hosts: frontend
+  become: yes
+  vars_files:
+    - versions.yml
+
+  roles:
+    - frontend

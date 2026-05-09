@@ -1,0 +1,14 @@
+---
+- name: Rollback Backend
+  hosts: backend
+  become: yes
+
+  tasks:
+    - name: Stop current backend container
+      shell: docker stop backend || true
+
+    - name: Remove current backend container
+      shell: docker rm backend || true
+
+    - name: Run old backend version
+      shell: docker run -d --name backend -p 5234:8000 rougha/backend_grp2:backup
