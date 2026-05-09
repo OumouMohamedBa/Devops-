@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         ANSIBLE_HOST_KEY_CHECKING = 'False'
-        ANSIBLE_PRIVATE_KEY_FILE = '/var/lib/jenkins/.ssh/id_ed25519_jenkins'
+        ANSIBLE_PRIVATE_KEY_FILE = '/var/lib/jenkins/.ssh/id_rsa'
         GIT_REPO = 'https://github.com/OumouMohamedBa/Devops-.git'
     }
 
