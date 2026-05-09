@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copier le reste du code de l'application
 COPY . .
 
+# Supprimer le .env pour utiliser les variables d'environnement passées au runtime
+RUN rm -f .env
+
 # Exposer le port sur lequel l'application s'exécute
 EXPOSE 8000
 
