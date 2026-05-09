@@ -10,7 +10,7 @@
     - name: Remove current backend container
       shell: docker rm backend || true
 
-    - name: Run old backend version
+    - name: Run backup backend version
       shell: |
         docker run -d \
         --name backend \
@@ -18,3 +18,21 @@
         -p 5234:8000 \
         -e DATABASE_URL=postgresql://postgres:admin@database:5432/boavizta \
         rougha/backend_grp2:backup
+
+- name: Rollback Frontend
+  hosts: frontend
+  become: yes
+
+  tasks:
+    - name: Stop current frontend container
+      shell: docker stop frontend || true
+
+    - name: Remove current frontend container
+      shell: docker rm frontend || true
+
+    - name: Run backup frontend version
+      shell: |
+        docker run -d \
+        --name frontend \
+        -p 4201:80 \
+        rougha/frontend_grp2:backup

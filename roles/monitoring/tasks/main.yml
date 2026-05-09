@@ -1,0 +1,22 @@
+---
+- name: Start Prometheus container
+  docker_container:
+    name: prometheus
+    image: prom/prometheus
+    state: started
+    restart_policy: always
+    published_ports:
+      - "9090:9090"
+    networks:
+      - name: app-network
+
+- name: Start Grafana container
+  docker_container:
+    name: grafana
+    image: grafana/grafana
+    state: started
+    restart_policy: always
+    published_ports:
+      - "3000:3000"
+    networks:
+      - name: app-network

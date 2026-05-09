@@ -16,6 +16,14 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                dir('Backend') {
+                    sh 'sonar-scanner'
+                }
+            }
+        }
+
         stage('Verify Ansible') {
             steps {
                 sh '''
@@ -59,6 +67,16 @@ pipeline {
                 sh '''
                 ansible-playbook -i inventory.ini deploy.yml \
                 --tags frontend \
+                --private-key=$ANSIBLE_PRIVATE_KEY_FILE
+                '''
+            }
+        }
+
+        stage('Deploy Monitoring') {
+            steps {
+                sh '''
+                ansible-playbook -i inventory.ini deploy.yml \
+                --tags monitoring \
                 --private-key=$ANSIBLE_PRIVATE_KEY_FILE
                 '''
             }
