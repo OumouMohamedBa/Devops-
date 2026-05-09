@@ -28,10 +28,3 @@
 
   roles:
     - frontend
-
-- name: Deploy Monitoring
-  hosts: all
-  become: yes
-  tags: monitoring
-  roles:
-    - monitoring
