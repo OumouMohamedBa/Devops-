@@ -11,4 +11,10 @@
       shell: docker rm backend || true
 
     - name: Run old backend version
-      shell: docker run -d --name backend -p 5234:8000 rougha/backend_grp2:backup
+      shell: |
+        docker run -d \
+        --name backend \
+        --network app-network \
+        -p 5234:8000 \
+        -e DATABASE_URL=postgresql://postgres:admin@database:5432/boavizta \
+        rougha/backend_grp2:backup

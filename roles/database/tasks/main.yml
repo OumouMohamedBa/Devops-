@@ -43,6 +43,7 @@
     --name database \
     --network app-network \
     -e POSTGRES_PASSWORD=admin \
+    -e POSTGRES_DB=boavizta \
     -p 5432:5432 \
     rougha/postgres_grp2:{{ database_version }}
 
@@ -57,11 +58,13 @@
 
 - name: Rollback database
   shell: |
-    docker stop database
-    docker rm database
+    docker stop database || true
+    docker rm database || true
     docker run -d \
     --name database \
+    --network app-network \
     -e POSTGRES_PASSWORD=admin \
+    -e POSTGRES_DB=boavizta \
     -p 5432:5432 \
-    postgres:backup
+    rougha/postgres_grp2:backup
   when: db_check.failed
