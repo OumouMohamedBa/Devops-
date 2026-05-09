@@ -2,6 +2,7 @@
 - name: Deploy Database
   hosts: database
   become: yes
+  tags: database
   vars_files:
     - versions.yml
 
@@ -11,6 +12,7 @@
 - name: Deploy Backend
   hosts: backend
   become: yes
+  tags: backend
   vars_files:
     - versions.yml
 
@@ -20,6 +22,7 @@
 - name: Deploy Frontend
   hosts: frontend
   become: yes
+  tags: frontend
   vars_files:
     - versions.yml
 
