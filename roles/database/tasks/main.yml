@@ -1,0 +1,47 @@
+---
+- name: Pull postgres image
+  docker_image:
+    name: "rougha/postgres_grp2:{{ database_version }}"
+    source: pull
+
+- name: Backup old database image
+  shell: |
+    docker tag rougha/postgres_grp2:latest rougha/postgres_grp2:backup || true
+
+- name: Stop database
+  shell: docker stop database || true
+
+- name: Remove database
+  shell: docker rm database || true
+
+- name: Create Docker network
+  shell: docker network create app-network || true
+
+- name: Start database
+  shell: |
+    docker run -d \
+    --name database \
+    --network app-network \
+    -e POSTGRES_PASSWORD=admin \
+    -p 5432:5432 \
+    rougha/postgres_grp2:{{ database_version }}
+
+- name: Wait database
+  pause:
+    seconds: 15
+
+- name: Verify database
+  shell: docker ps | grep database
+  register: db_check
+  failed_when: db_check.rc != 0
+
+- name: Rollback database
+  shell: |
+    docker stop database
+    docker rm database
+    docker run -d \
+    --name database \
+    -e POSTGRES_PASSWORD=admin \
+    -p 5432:5432 \
+    postgres:backup
+  when: db_check.failed

@@ -1,0 +1,40 @@
+---
+- name: Pull frontend image
+  docker_image:
+    name: "rougha/frontend_grp2:{{ frontend_version }}"
+    source: pull
+
+- name: Backup old frontend image
+  shell: |
+    docker tag rougha/frontend_grp2:1.0 rougha/frontend_grp2:backup || true
+
+- name: Stop frontend
+  shell: docker stop frontend || true
+
+- name: Remove frontend
+  shell: docker rm frontend || true
+
+- name: Start frontend
+  shell: |
+    docker run -d \
+    --name frontend \
+    -p 4201:80 \
+    rougha/frontend_grp2:{{ frontend_version }}
+
+- name: Wait frontend
+  pause:
+    seconds: 10
+
+- name: Healthcheck frontend
+  uri:
+    url: http://{{ ansible_host }}:4201
+    status_code: 200
+  register: frontend_health
+  ignore_errors: yes
+
+- name: Rollback frontend
+  shell: |
+    docker stop frontend
+    docker rm frontend
+    docker run -d --name frontend -p 4201:80 rougha/frontend_grp2:backup
+  when: frontend_health.failed

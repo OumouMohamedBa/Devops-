@@ -1,0 +1,45 @@
+---
+- name: Pull backend image
+  docker_image:
+    name: "rougha/backend_grp2:{{ backend_version }}"
+    source: pull
+
+- name: Backup old backend image
+  shell: |
+    docker tag rougha/backend_grp2:1.0 rougha/backend_grp2:backup || true
+
+- name: Stop old backend container
+  shell: docker stop backend || true
+
+- name: Remove old backend container
+  shell: docker rm backend || true
+
+- name: Create Docker network
+  shell: docker network create app-network || true
+
+- name: Start new backend container
+  shell: |
+    docker run -d \
+    --name backend \
+    --network app-network \
+    -p 5234:8000 \
+    -e DATABASE_URL=postgresql://admin:admin@database:5432/postgres \
+    rougha/backend_grp2:{{ backend_version }}
+
+- name: Wait for backend
+  pause:
+    seconds: 10
+
+- name: Healthcheck backend
+  uri:
+    url: http://{{ ansible_host }}:5234/health
+    status_code: 200
+  register: backend_health
+  ignore_errors: yes
+
+- name: Rollback if backend failed
+  shell: |
+    docker stop backend
+    docker rm backend
+    docker run -d --name backend -p 5234:8000 rougha/backend_grp2:backup
+  when: backend_health.failed
