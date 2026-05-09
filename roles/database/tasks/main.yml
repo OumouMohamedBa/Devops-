@@ -12,11 +12,21 @@
   shell: |
     docker stop database || true
     docker stop postgres_db || true
+    # Arrêter tout conteneur écoutant sur le port 5432
+    CONTAINER_ID=$(docker ps -q --filter "publish=5432")
+    if [ ! -z "$CONTAINER_ID" ]; then
+      docker stop $CONTAINER_ID || true
+    fi
 
 - name: Remove database
   shell: |
     docker rm database || true
     docker rm postgres_db || true
+    # Supprimer tout conteneur qui utilisait le port 5432
+    CONTAINER_ID=$(docker ps -aq --filter "publish=5432")
+    if [ ! -z "$CONTAINER_ID" ]; then
+      docker rm $CONTAINER_ID || true
+    fi
 
 - name: Create Docker network
   shell: docker network create app-network || true
